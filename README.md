@@ -40,19 +40,21 @@ class MyClass {
 }
 
 $annotations = new Annotations(new ReflectionClass('MyClass'));
-$annotations['HasCharacteristic'] === true;
+$annotations['Characteristic'] === true;
 
 // Careful:
-$annotations['HasAnotherCharacteristic'] === null;
-isset($annotations['HasAnotherCharacteristic']) === false;
+$annotations['AnotherCharacteristic'] === null;
+isset($annotations['AnotherCharacteristic']) === false;
 ```
 
 Instead, use the hasAnnotation($annotation) method:
+
 ```php
 <?php
 $annotations->hasAnnotation('Characteristic') === true;
 $annotations->hasAnnotation('AnotherCharacteristic') === false;
 ```
+
 ### Single Value
 
 Single value annotations can be defined as:
