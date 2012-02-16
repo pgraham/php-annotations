@@ -103,6 +103,7 @@ $annotations['likesToEat']['anytime'] == array('cheese', 'kraft dinner', 'hot do
 
 * * *
 **NOTE:** All parameter values can be surrounded by optional braces.
+
 ```php
 <?php
 /**
@@ -110,5 +111,6 @@ $annotations['likesToEat']['anytime'] == array('cheese', 'kraft dinner', 'hot do
  * @DoesNotLikeToEat( morning = salad, night = [ toast, fruit ])
  */
 ```
+
 * * *
 
