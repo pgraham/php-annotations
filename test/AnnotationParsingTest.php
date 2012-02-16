@@ -12,7 +12,7 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-use \anno\Annotations;
+use \zeptech\anno\Annotations;
 use \PHPUnit_Framework_TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';
