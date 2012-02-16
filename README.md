@@ -24,7 +24,7 @@ foreach ($refClass->getMethods() AS $method) {
 
 ## Supported annotation syntax
 
-_All annotations are case insensitive_.
+**All annotations are case insensitive.**
 
 ### Boolean
 
@@ -100,7 +100,7 @@ $annotations['likesToEat']['anytime'] == array('cheese', 'kraft dinner', 'hot do
 ```
 
 * * *
-_NOTE:_ All parameter values can be surrounded by optional braces.
+**NOTE:** All parameter values can be surrounded by optional braces.
 ```php
 <?php
 /**
