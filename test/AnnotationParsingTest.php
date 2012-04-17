@@ -330,4 +330,56 @@ EOT;
 
     $this->assertEquals($expected, $description['value'], $msg);
   }
+
+  /**
+   * Test that multiple annotations result in an array of values.
+   */
+  public function testMultipleAnnotationsWithSameName() {
+    $comment = <<<EOT
+/**
+ * This is a comment that contains multiple annotations with the same
+ * name
+ *
+ * @param Value1
+ * @param Value2
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['param']), $msg);
+    $this->assertInternalType('array', $annotations['param'], $msg);
+
+    $params = $annotations['param'];
+    $this->assertCount(2, $params, $msg);
+    $this->assertEquals(array('Value1', 'Value2'), $params, $msg);
+  }
+
+  /**
+   * Test that whitespace between grammar elements has no effect on the parsed
+   * value.
+   */
+  public function testGrammarWhiteSpace() {
+    $comment = <<<EOT
+/**
+ * This is a comment that contains parameters with whitespace between the
+ * grammar elements.
+ *
+ * @Entity ( name = Entity1 , value = Value1 )
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['entity']), $msg);
+
+    $this->assertTrue(isset($annotations['entity']['name']), $msg);
+    $this->assertEquals('Entity1', $annotations['entity']['name'], $msg);
+
+    $this->assertTrue(isset($annotations['entity']['value']), $msg);
+    $this->assertEquals('Value1', $annotations['entity']['value'], $msg);
+  }
+
 }
