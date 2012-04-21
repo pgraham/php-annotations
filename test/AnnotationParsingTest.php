@@ -354,6 +354,26 @@ EOT;
     $params = $annotations['param'];
     $this->assertCount(2, $params, $msg);
     $this->assertEquals(array('Value1', 'Value2'), $params, $msg);
+
+    $comment = <<<EOT
+/**
+ * This is a comment that contains multiple annotations with the same name
+ *
+ * @param Value1
+ * @param Value2
+ * @param Value3
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['param']), $msg);
+    $this->assertInternalType('array', $annotations['param'], $msg);
+
+    $params = $annotations['param'];
+    $this->assertCount(3, $params, $msg);
+    $this->assertEquals(array('Value1', 'Value2', 'Value3'), $params, $msg);
   }
 
   /**

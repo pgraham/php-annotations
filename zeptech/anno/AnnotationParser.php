@@ -73,7 +73,9 @@ class AnnotationParser {
       }
 
       if (isset($annotations[$annoName])) {
-        $annotations[$annoName] = array($annotations[$annoName]);
+        if (!is_array($annotations[$annoName])) {
+          $annotations[$annoName] = array($annotations[$annoName]);
+        }
         $annotations[$annoName][] = $val;
       } else {
         $annotations[$annoName] = $val;
