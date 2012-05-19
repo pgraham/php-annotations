@@ -91,6 +91,38 @@ class Annotations implements ArrayAccess {
     return true;
   }
 
+  /**
+   * Return an annotation value as a list, even if the specified annotation
+   * contains only a scalar value.
+   *
+   * Nested annotations can be accessed by passing in multiple parameters.
+   *
+   * If the specified annotation is not set then an empty array is returned.
+   */
+  public function asArray() {
+    if (func_num_args() === 0) {
+      return $this->_annotations;
+    }
+
+    $args = func_get_args();
+    $annos =& $this->_annotations;
+    while (count($args) > 0) {
+      $anno = strtolower(array_shift($args));
+      if (!isset($annos[$anno])) {
+        $val = array();
+        break;
+      }
+
+      $val = $annos[$anno];
+      $annos =& $annos[$anno];
+    }
+
+    if (!is_array($val)) {
+      $val = array($val);
+    }
+    return $val;
+  }
+
   /*
    * ===========================================================================
    * ArrayAccess implementation
