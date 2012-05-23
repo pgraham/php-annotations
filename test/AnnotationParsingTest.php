@@ -25,6 +25,17 @@ require_once __DIR__ . '/test-common.php';
 class ReflectionHelperTest extends TestCase {
 
   /**
+   * Tests that a single line doc comment containing a single annotation is
+   * parsed properly.
+   */
+  public function testInlineAnnotation() {
+    $comment = "/** @Inline */";
+    $annotations = new Annotations($comment);
+
+    $this->assertTrue(isset($annotations['inline']));
+  }
+
+  /**
    * Tests that a doc comment that contains a single annotation with no
    * parameters is parsed correctly.
    */
