@@ -36,6 +36,19 @@ class ReflectionHelperTest extends TestCase {
   }
 
   /**
+   * Tests that a single line doc comment containing a single, parameterized
+   * annotation is parsed properly.
+   */
+  public function testParameterizedInlineAnnotation() {
+    $comment = "/** @Inline(param = value) */";
+    $annotations = new Annotations($comment);
+
+    $this->assertTrue(isset($annotations['inline']));
+    $this->assertTrue(isset($annotations['inline']['param']));
+    $this->assertEquals('value', $annotations['inline']['param']);
+  }
+
+  /**
    * Tests that a doc comment that contains a single annotation with no
    * parameters is parsed correctly.
    */

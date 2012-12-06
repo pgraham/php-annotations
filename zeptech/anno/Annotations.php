@@ -93,7 +93,8 @@ class Annotations implements ArrayAccess {
 
   /**
    * Return an annotation value as a list, even if the specified annotation
-   * contains only a scalar value.
+   * contains only a scalar value or is an associative array representing
+   * a single parameterized annotation declaration.
    *
    * Nested annotations can be accessed by passing in multiple parameters.
    *
@@ -119,6 +120,12 @@ class Annotations implements ArrayAccess {
 
     if (!is_array($val)) {
       $val = array($val);
+    } else {
+      // Check if array is associative
+      $isAssoc = (bool) count(array_filter(array_keys($val), 'is_string'));
+      if ($isAssoc) {
+        $val = array($val);
+      }
     }
     return $val;
   }
