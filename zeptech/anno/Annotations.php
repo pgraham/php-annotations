@@ -1,7 +1,7 @@
 <?php
 /**
  * =============================================================================
- * Copyright (c) 2011, Philip Graham
+ * Copyright (c) 2013, Philip Graham
  * All rights reserved.
  *
  * This file is part of Reed and is licensed by the Copyright holder under
@@ -37,6 +37,9 @@ class Annotations implements ArrayAccess {
    * Create a new Annotations instance for the given reflection element.
    * Ommiting the Reflector will create an empty annotations object.
    *
+   * **NOTE** This constructor should not be used.  Use an AnnotationFactory
+   * instead.
+   *
    * @param Reflector $reflector The object from which to parse annotations.
    * @throws Exception If the given object does not contain a getDocComment()
    *   method.
@@ -47,48 +50,21 @@ class Annotations implements ArrayAccess {
       return;
     }
 
-    if ($reflector instanceof Reflector) {
-      if (!method_exists($reflector, 'getDocComment')) {
-        throw new Exception("Only Reflector implementations that provide a"
-          . " getDocComment() method can be parsed for annotations.");
-      }
-
-      $docComment = $reflector->getDocComment();
+    if (is_array($reflector)) {
+      $this->_annotations = $reflector;
     } else {
-      $docComment = $reflector;
-    }
-    $this->_annotations = AnnotationParser::getAnnotations($docComment);
-  }
+      if ($reflector instanceof Reflector) {
+        if (!method_exists($reflector, 'getDocComment')) {
+          throw new Exception("Only Reflector implementations that provide a"
+            . " getDocComment() method can be parsed for annotations.");
+        }
 
-  /**
-   * Return a boolean indicating whether or not the specified annotation is
-   * set.  Nested values can be specified by providing multiple parameters.
-   *
-   * E.g. $annotations->hasAnnotation('base', 'sub'); is equivalent to checking
-   * if $annotations['base']['sub'] is set.
-   *
-   * Passing in no parameters will return whether or not the collection is
-   * empty.
-   *
-   * @param string...
-   */
-  public function hasAnnotation() {
-    if (func_num_args() == 0) {
-      return count($this->_annotations) > 0;
-    }
-
-    $args = func_get_args();
-    $annos =& $this->_annotations;
-    while (count($args) > 0) {
-      $anno = strtolower(array_shift($args));
-      if (isset($annos[$anno])) {
-        $annos =& $annos[$anno];
+        $docComment = $reflector->getDocComment();
       } else {
-        return false;
+        $docComment = $reflector;
       }
+      $this->_annotations = AnnotationParser::getAnnotations($docComment);
     }
-
-    return true;
   }
 
   /**
@@ -128,6 +104,44 @@ class Annotations implements ArrayAccess {
       }
     }
     return $val;
+  }
+
+  /**
+   * Return a boolean indicating whether or not the specified annotation is
+   * set.  Nested values can be specified by providing multiple parameters.
+   *
+   * E.g. $annotations->hasAnnotation('base', 'sub'); is equivalent to checking
+   * if $annotations['base']['sub'] is set.
+   *
+   * Passing in no parameters will return whether or not the collection is
+   * empty.
+   *
+   * @param string...
+   */
+  public function hasAnnotation() {
+    if (func_num_args() == 0) {
+      return count($this->_annotations) > 0;
+    }
+
+    $args = func_get_args();
+    $annos =& $this->_annotations;
+    while (count($args) > 0) {
+      $anno = strtolower(array_shift($args));
+      if (isset($annos[$anno])) {
+        $annos =& $annos[$anno];
+      } else {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Check if the collection contains an annotation with the given name.
+   */
+  public function isAnnotatedWith($annotation) {
+    return array_key_exists(strtolower($annotation), $this->_annotations);
   }
 
   /*
