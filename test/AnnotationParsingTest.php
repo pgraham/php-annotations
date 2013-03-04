@@ -25,6 +25,30 @@ require_once __DIR__ . '/test-common.php';
 class ReflectionHelperTest extends TestCase {
 
   /**
+   * Tests that a single line doc comment containing a single annotation is
+   * parsed properly.
+   */
+  public function testInlineAnnotation() {
+    $comment = "/** @Inline */";
+    $annotations = new Annotations($comment);
+
+    $this->assertTrue(isset($annotations['inline']));
+  }
+
+  /**
+   * Tests that a single line doc comment containing a single, parameterized
+   * annotation is parsed properly.
+   */
+  public function testParameterizedInlineAnnotation() {
+    $comment = "/** @Inline(param = value) */";
+    $annotations = new Annotations($comment);
+
+    $this->assertTrue(isset($annotations['inline']));
+    $this->assertTrue(isset($annotations['inline']['param']));
+    $this->assertEquals('value', $annotations['inline']['param']);
+  }
+
+  /**
    * Tests that a doc comment that contains a single annotation with no
    * parameters is parsed correctly.
    */
@@ -330,4 +354,76 @@ EOT;
 
     $this->assertEquals($expected, $description['value'], $msg);
   }
+
+  /**
+   * Test that multiple annotations result in an array of values.
+   */
+  public function testMultipleAnnotationsWithSameName() {
+    $comment = <<<EOT
+/**
+ * This is a comment that contains multiple annotations with the same
+ * name
+ *
+ * @param Value1
+ * @param Value2
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['param']), $msg);
+    $this->assertInternalType('array', $annotations['param'], $msg);
+
+    $params = $annotations['param'];
+    $this->assertCount(2, $params, $msg);
+    $this->assertEquals(array('Value1', 'Value2'), $params, $msg);
+
+    $comment = <<<EOT
+/**
+ * This is a comment that contains multiple annotations with the same name
+ *
+ * @param Value1
+ * @param Value2
+ * @param Value3
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['param']), $msg);
+    $this->assertInternalType('array', $annotations['param'], $msg);
+
+    $params = $annotations['param'];
+    $this->assertCount(3, $params, $msg);
+    $this->assertEquals(array('Value1', 'Value2', 'Value3'), $params, $msg);
+  }
+
+  /**
+   * Test that whitespace between grammar elements has no effect on the parsed
+   * value.
+   */
+  public function testGrammarWhiteSpace() {
+    $comment = <<<EOT
+/**
+ * This is a comment that contains parameters with whitespace between the
+ * grammar elements.
+ *
+ * @Entity ( name = Entity1 , value = Value1 )
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['entity']), $msg);
+
+    $this->assertTrue(isset($annotations['entity']['name']), $msg);
+    $this->assertEquals('Entity1', $annotations['entity']['name'], $msg);
+
+    $this->assertTrue(isset($annotations['entity']['value']), $msg);
+    $this->assertEquals('Value1', $annotations['entity']['value'], $msg);
+  }
+
 }

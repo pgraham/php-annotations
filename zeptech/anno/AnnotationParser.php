@@ -21,8 +21,8 @@ namespace zeptech\anno;
  */
 class AnnotationParser {
 
-  const ANNOTATION_REGEX = '/@(\w+)\(?(.*)\)?\n/';
-  const PARAMETER_REGEX = '/(\w+)\s*=\s*(\[[^\]]*\]|"[^"]*"|[^,)]*)(?:,|\))/';
+  const ANNOTATION_REGEX = '/@(\w+)(?:\s*(?:\(\s*)?(.*?)(?:\s*\))?)??\s*(?:\n|\*\/)/';
+  const PARAMETER_REGEX = '/(\w+)\s*=\s*(\[[^\]]*\]|"[^"]*"|[^,)]*)\s*(?:,|$)/';
 
   /**
    * Parse any annotations from the given doc comment and return them in an
@@ -38,33 +38,47 @@ class AnnotationParser {
    * @return array Array containing the defined annotations.
    */
   public static function getAnnotations($docComment) {
-    $matches = array();
-    preg_match_all(
+    $hasAnnotations = preg_match_all(
       self::ANNOTATION_REGEX,
       $docComment,
       $matches,
       PREG_SET_ORDER
     );
 
+    if (!$hasAnnotations) {
+      return array();
+    }
+
     $annotations = array();
     foreach ($matches AS $anno) {
       $annoName = strtolower($anno[1]);
 
-      $params = array();
-      $hasParams = preg_match_all(self::PARAMETER_REGEX, $anno[2], $params,
-        PREG_SET_ORDER);
-      if ($hasParams) {
-        $annotations[$annoName] = array();
-        foreach ($params AS $param) {
-          $annotations[$annoName][$param[1]] = self::_parseValue($param[2]);
-        }
-      } else {
-        $val = trim($anno[2]);
-        if ($val == '') {
-          $annotations[$annoName] = true;
+      $val = true;
+      if (isset($anno[2])) {
+        $hasParams = preg_match_all(self::PARAMETER_REGEX, $anno[2], $params,
+          PREG_SET_ORDER);
+        if ($hasParams) {
+          $val = array();
+          foreach ($params AS $param) {
+            $val[$param[1]] = self::_parseValue($param[2]);
+          }
         } else {
-          $annotations[$annoName] = self::_parseValue(trim($anno[2]));
+          $val = trim($anno[2]);
+          if ($val == '') {
+            $val = true;
+          } else {
+            $val = self::_parseValue($val);
+          }
         }
+      }
+
+      if (isset($annotations[$annoName])) {
+        if (!is_array($annotations[$annoName])) {
+          $annotations[$annoName] = array($annotations[$annoName]);
+        }
+        $annotations[$annoName][] = $val;
+      } else {
+        $annotations[$annoName] = $val;
       }
     }
     return $annotations;

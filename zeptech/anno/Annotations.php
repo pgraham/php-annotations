@@ -1,7 +1,7 @@
 <?php
 /**
  * =============================================================================
- * Copyright (c) 2011, Philip Graham
+ * Copyright (c) 2013, Philip Graham
  * All rights reserved.
  *
  * This file is part of Reed and is licensed by the Copyright holder under
@@ -37,6 +37,9 @@ class Annotations implements ArrayAccess {
    * Create a new Annotations instance for the given reflection element.
    * Ommiting the Reflector will create an empty annotations object.
    *
+   * **NOTE** This constructor should not be used.  Use an AnnotationFactory
+   * instead.
+   *
    * @param Reflector $reflector The object from which to parse annotations.
    * @throws Exception If the given object does not contain a getDocComment()
    *   method.
@@ -47,17 +50,60 @@ class Annotations implements ArrayAccess {
       return;
     }
 
-    if ($reflector instanceof Reflector) {
-      if (!method_exists($reflector, 'getDocComment')) {
-        throw new Exception("Only Reflector implementations that provide a"
-          . " getDocComment() method can be parsed for annotations.");
+    if (is_array($reflector)) {
+      $this->_annotations = $reflector;
+    } else {
+      if ($reflector instanceof Reflector) {
+        if (!method_exists($reflector, 'getDocComment')) {
+          throw new Exception("Only Reflector implementations that provide a"
+            . " getDocComment() method can be parsed for annotations.");
+        }
+
+        $docComment = $reflector->getDocComment();
+      } else {
+        $docComment = $reflector;
+      }
+      $this->_annotations = AnnotationParser::getAnnotations($docComment);
+    }
+  }
+
+  /**
+   * Return an annotation value as a list, even if the specified annotation
+   * contains only a scalar value or is an associative array representing
+   * a single parameterized annotation declaration.
+   *
+   * Nested annotations can be accessed by passing in multiple parameters.
+   *
+   * If the specified annotation is not set then an empty array is returned.
+   */
+  public function asArray() {
+    if (func_num_args() === 0) {
+      return $this->_annotations;
+    }
+
+    $args = func_get_args();
+    $annos =& $this->_annotations;
+    while (count($args) > 0) {
+      $anno = strtolower(array_shift($args));
+      if (!isset($annos[$anno])) {
+        $val = array();
+        break;
       }
 
-      $docComment = $reflector->getDocComment();
-    } else {
-      $docComment = $reflector;
+      $val = $annos[$anno];
+      $annos =& $annos[$anno];
     }
-    $this->_annotations = AnnotationParser::getAnnotations($docComment);
+
+    if (!is_array($val)) {
+      $val = array($val);
+    } else {
+      // Check if array is associative
+      $isAssoc = (bool) count(array_filter(array_keys($val), 'is_string'));
+      if ($isAssoc) {
+        $val = array($val);
+      }
+    }
+    return $val;
   }
 
   /**
@@ -89,6 +135,13 @@ class Annotations implements ArrayAccess {
     }
 
     return true;
+  }
+
+  /**
+   * Check if the collection contains an annotation with the given name.
+   */
+  public function isAnnotatedWith($annotation) {
+    return array_key_exists(strtolower($annotation), $this->_annotations);
   }
 
   /*
