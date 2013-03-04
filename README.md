@@ -4,23 +4,16 @@ This library provides parsing for annotations defined in class, method and
 member doc comments. Annotations are made available as an object with array
 access capabilities.
 
-## Usage
+## Install
 
-```php
-<?php
-require 'SplClassLoader.php';
-$loader = new SplClassLoader('anno', '/path/to/php-annotations/zeptech');
-$loader->register();
+Install via [Composer](http://getcomposer.org)
 
-$refClass = new ReflectionClass('myns\MyClass');
-$classAnnotations = new Annotations($refClass);
+    {
+        "require": {
+            "zeptech/annotations": "1.0.0"
+        }
+    }
 
-$methodAnnotations = array();
-foreach ($refClass->getMethods() AS $method) {
-  $methodAnnotations[$method->getName()] = new Annotations($method);
-}
-```
-*See <https://gist.github.com/221634> for an implementation of SplClassLoader*
 
 ## Supported annotation syntax
 
@@ -41,8 +34,11 @@ class MyClass {
 
 $annotations = new Annotations(new ReflectionClass('MyClass'));
 $annotations['Characteristic'] === true;
+```
 
-// Careful:
+However, the absence of an annotation will result in a value of `null`:
+
+```php
 $annotations['AnotherCharacteristic'] === null;
 isset($annotations['AnotherCharacteristic']) === false;
 ```
