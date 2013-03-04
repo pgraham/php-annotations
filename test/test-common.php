@@ -15,7 +15,7 @@
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
 
-require 'SplClassLoader.php';
+require_once 'SplClassLoader.php';
 
 $loader = new SplClassLoader('zeptech\anno', __DIR__ . '/..');
 $loader->register();
