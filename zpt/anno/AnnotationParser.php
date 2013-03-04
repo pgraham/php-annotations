@@ -12,7 +12,7 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace zeptech\anno;
+namespace zpt\anno;
 
 /**
  * This class provides extensions to PHP's built in reflection capabilities.

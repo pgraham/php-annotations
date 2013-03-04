@@ -17,5 +17,5 @@
 
 require_once 'SplClassLoader.php';
 
-$loader = new SplClassLoader('zeptech\anno', __DIR__ . '/..');
+$loader = new SplClassLoader('zpt\anno', __DIR__ . '/..');
 $loader->register();
