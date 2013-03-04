@@ -1,0 +1,22 @@
+{
+    "name": "zeptech/annotations",
+    "type": "library",
+    "description": "DOC Block annotation parsing for PHP",
+    "keywords": [ "annotations" ],
+    "homepage": "https://github.com/pgraham/php-annotations",
+    "license": "BSD",
+    "authors": [
+	{
+	    "name": "Philip Graham",
+	    "email": "philip@zeptech.ca"
+	}
+    ],
+    "autoload": {
+	"psr-0": {
+	    "zpt\\anno": ""
+	}
+    },
+    "require": {
+      "php": ">=5.3.0"
+    }
+}
