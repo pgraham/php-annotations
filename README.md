@@ -16,7 +16,7 @@ Install via [Composer](http://getcomposer.org)
 
 ## Instantiation
 
-To instantiate simple pass a SPL Reflector instance with the `getDocComment()`
+To instantiate simply pass a SPL Reflector instance with the `getDocComment()`
 method to the Annotations constructor.
 
 ```php
