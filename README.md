@@ -14,6 +14,23 @@ Install via [Composer](http://getcomposer.org)
         }
     }
 
+## Instantiation
+
+To instantiate simple pass a SPL Reflector instance with the `getDocComment()`
+method to the Annotations constructor.
+
+```php
+<?php
+use \zpt\anno\Annotations;
+
+$classReflector = new ReflectionClass('MyClass');
+$classAnnotations = new Annotations($classReflector);
+
+$methodAnnotations = array();
+foreach ($classReflector->getMethods() as $methodReflector) {
+    $methodAnnotations[$methodReflector->getName()] = new Annotations($methodReflector);
+}
+```
 
 ## Supported annotation syntax
 
