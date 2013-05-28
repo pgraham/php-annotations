@@ -34,12 +34,11 @@ foreach ($classReflector->getMethods() as $methodReflector) {
 
 ## Supported annotation syntax
 
-**All annotations are case insensitive.**
+All annotations are case **insensitive.**
 
 ### Boolean
 
-Boolean annotations values are defined as the existance or non-existance of an
-annotation.
+The default value for all annotations is `true`.
 
 ```php
 <?php
@@ -53,14 +52,15 @@ $annotations = new Annotations(new ReflectionClass('MyClass'));
 $annotations['Characteristic'] === true;
 ```
 
-However, the absence of an annotation will result in a value of `null`:
+The absence of an annotation will result in a value of `null`:
 
 ```php
 $annotations['AnotherCharacteristic'] === null;
 isset($annotations['AnotherCharacteristic']) === false;
 ```
 
-Instead, use the hasAnnotation($annotation) method:
+The hasAnnotation($annotation) method can be used to determine the existance of
+an annotation, regardless of its value.
 
 ```php
 <?php
@@ -95,9 +95,10 @@ Single values can be specified as arrays:
 
 $annotations['LikesToEat'] == array('cheese', 'kraft dinner', 'hot dogs');
 ```
-Some values will be cast into their appropriate types; `true` and `false` will
-be cast to their boolean equivalents and numeric values will be cast to either
-int or float types.
+
+Some values will be cast into their appropriate types; The strings `'true'` and
+`'false'` will be cast to their boolean equivalents and numeric values will be
+cast to either int or float types.
 
 ### Parameters
 
@@ -115,7 +116,7 @@ $annotations['likesToEat']['anytime'] == array('cheese', 'kraft dinner', 'hot do
 ```
 
 * * *
-**NOTE:** All parameter values can be surrounded by optional braces.
+**NOTE:** All annotation values can be surrounded by optional braces.
 
 ```php
 <?php
