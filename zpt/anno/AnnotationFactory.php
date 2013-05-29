@@ -18,8 +18,7 @@ use \ReflectionClass;
 use \Reflector;
 
 /**
- * Factory class for creating an annotation set given either a classname or
- * a Reflector instance.
+ * Factory class for Annotation instances that provides caching.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
@@ -37,32 +36,13 @@ class AnnotationFactory {
 	 * @return Annotations
 	 */
 	public function get($reflector = null) {
-		if ($reflector === null) {
-			return new Annotations();
-		}
-
-		if ($reflector instanceof Reflector) {
-			if (!method_exists($reflector, 'getDocComment')) {
-				throw new Exception("Only Reflector implementations that provide a " .
-					"getDocComment() method can be parsed for annotations.");
-			}
-
-			$docComment = $reflector->getDocComment();
-		} else if (class_exists($reflector)) {
-			$class = new ReflectionClass($reflector);
-			$docComment = $class->getDocComment();
-		} else {
-			$docComment = $reflector;
-		}
-
-		$cacheKey = md5($docComment);
+		$docComment = Annotations::parseDocComment($reflector);
+		$cacheKey = md5((string) $docComment);
 		if (array_key_exists($cacheKey, $this->_cache)) {
 			return $this->_cache[$cacheKey];
 		}
 
-		$annotations = new Annotations(
-			AnnotationParser::getAnnotations($docComment));
-
+		$annotations = new Annotations($docComment);
 		$this->_cache[$cacheKey] = $annotations;
 		return $annotations;
 	}

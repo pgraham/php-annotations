@@ -15,7 +15,8 @@
 namespace zpt\anno;
 
 use \ArrayAccess;
-use \Exception;
+use \InvalidArgumentException;
+use \ReflectionClass;
 use \Reflector;
 
 /**
@@ -27,6 +28,34 @@ use \Reflector;
  */
 class Annotations implements ArrayAccess {
 
+	/**
+	 * Parse a doc comment from a parameter or throw an exception.
+	 */
+	public static function parseDocComment($arg) {
+		if (is_array($arg)) {
+			return $arg;
+		}
+
+		if (is_object($arg)) {
+			if (!($arg instanceof Reflector)) {
+				throw new InvalidArgumentException();
+			}
+
+			if (!method_exists($arg, 'getDocComment')) {
+				throw new ReflectorNotCommentedException();
+			}
+
+			return $arg->getDocComment();
+		}
+
+		if (class_exists($arg)) {
+			$class = new ReflectionClass($arg);
+			return $class->getDocComment();
+		}
+
+		return $arg;
+	}
+
 	/*
 	 * The reflection element's annotations as returned by
 	 * ReflectionHelper::getAnnotations().
@@ -34,35 +63,26 @@ class Annotations implements ArrayAccess {
 	private $_annotations;
 
 	/**
-	 * Create a new Annotations instance for the given reflection element.
-	 * Ommiting the Reflector will create an empty annotations object.
+	 * Create a new Annotations instance.
 	 *
-	 * **NOTE** This constructor should not be used. Use an AnnotationFactory
-	 * instead.
-	 *
-	 * @param Reflector $reflector The object from which to parse annotations.
-	 * @throws Exception If the given object does not contain a getDocComment()
-	 *	 method.
+	 * @param mixed $reflector Either a Reflector instance, the name of a class, 
+	 * a doc comment or an array to use to directly populate the instance. An 
+	 * value that evaluates to `false` will result in an empty Annotations 
+	 * instance.
+	 * @throws ReflectorNotCommentedException If the given object is a Reflector 
+	 * instance but does not contain a getDocComment() method.
+	 * @throws InvalidArgumentException If the given parameter is an object but 
+	 * not a Reflector instance.
 	 */
 	public function __construct($reflector = null) {
-		if ($reflector === null) {
-			$this->_annotations = array();
-			return;
+		if (!$reflector) {
+			$reflector = array();
 		}
 
 		if (is_array($reflector)) {
 			$this->_annotations = $reflector;
 		} else {
-			if ($reflector instanceof Reflector) {
-				if (!method_exists($reflector, 'getDocComment')) {
-					throw new Exception("Only Reflector implementations that provide a"
-						. " getDocComment() method can be parsed for annotations.");
-				}
-
-				$docComment = $reflector->getDocComment();
-			} else {
-				$docComment = $reflector;
-			}
+			$docComment = self::parseDocComment($reflector);
 			$this->_annotations = AnnotationParser::getAnnotations($docComment);
 		}
 	}
