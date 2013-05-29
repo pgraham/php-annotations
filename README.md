@@ -10,7 +10,7 @@ Install via [Composer](http://getcomposer.org)
 
     {
         "require": {
-            "zeptech/annotations": "1.0.0"
+            "zeptech/annotations": "1.1.0"
         }
     }
 
@@ -30,6 +30,22 @@ $methodAnnotations = array();
 foreach ($classReflector->getMethods() as $methodReflector) {
     $methodAnnotations[$methodReflector->getName()] = new Annotations($methodReflector);
 }
+```
+
+### Factory
+
+Projects where it is necessary to create multiple Annotations instances for the
+same doc comment, or it is necessary to do a lot of argument passing to avoid
+this, may benefit from the use of an AnnotationFactory. AnnotationFactories will
+cache Annotation instances based on the doc comment's md5 hash value. Computing
+this value is generally faster than parsing the comment multiple times.
+
+```php
+<?php
+use \zpt\anno\AnnotationFactory;
+
+$factory = new AnnotationFactory;
+$annos = $factory->get('stdclass');
 ```
 
 ## Supported annotation syntax
