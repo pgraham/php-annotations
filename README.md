@@ -132,7 +132,7 @@ $annotations['likesToEat']['anytime'] == array('cheese', 'kraft dinner', 'hot do
 ```
 
 * * *
-**NOTE:** All annotation values can be surrounded by optional braces.
+**NOTE:** All annotation values can be surrounded by optional parentheses.
 
 ```php
 <?php
@@ -141,6 +141,4 @@ $annotations['likesToEat']['anytime'] == array('cheese', 'kraft dinner', 'hot do
  * @DoesNotLikeToEat( morning = salad, night = [ toast, fruit ])
  */
 ```
-
-* * *
 
