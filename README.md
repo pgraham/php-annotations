@@ -50,11 +50,8 @@ $annos = $factory->get('stdclass');
 
 ## Supported annotation syntax
 
-All annotations are case **insensitive.**
-
-### Boolean
-
-The default value for all annotations is `true`.
+All annotations are case **insensitive**. The default value for all annotations
+is `true`.
 
 ```php
 <?php
