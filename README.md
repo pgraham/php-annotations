@@ -34,11 +34,11 @@ foreach ($classReflector->getMethods() as $methodReflector) {
 
 ### Factory
 
-Projects where it is necessary to create multiple Annotations instances for the
-same doc comment, or it is necessary to do a lot of argument passing to avoid
-this, may benefit from the use of an AnnotationFactory. AnnotationFactories will
-cache Annotation instances based on the doc comment's md5 hash value. Computing
-this value is generally faster than parsing the comment multiple times.
+Projects that create multiple Annotations instances for the same doc comment, or
+find it necessary to do a lot of argument passing to avoid this, may benefit
+from the use of an AnnotationFactory.  AnnotationFactories will cache Annotation
+instances based on the doc comment's md5 hash value. Computing this value is
+generally faster than parsing the comment multiple times.
 
 ```php
 <?php
@@ -84,9 +84,9 @@ $annotations->hasAnnotation('Characteristic') === true;
 $annotations->hasAnnotation('AnotherCharacteristic') === false;
 ```
 
-### Single Value
+### Annotation values
 
-Single value annotations can be defined as:
+A single annotation value can be defined as:
 
 ```php
 <?php
@@ -100,7 +100,13 @@ class MyClass {
 $annotations['LikesToEat'] === 'cheese';
 ```
 
-Single values can be specified as arrays:
+Some values will be cast into their expected types; strings `'true'` and
+`'false'` will be cast to their boolean equivalents and numeric values will be
+cast to either int or float types.
+
+#### Arrays
+Annotation values can also be specified as arrays by providing a comma separated
+list surrounded with brackets:
 
 ```php
 <?php
@@ -112,13 +118,9 @@ Single values can be specified as arrays:
 $annotations['LikesToEat'] == array('cheese', 'kraft dinner', 'hot dogs');
 ```
 
-Some values will be cast into their appropriate types; The strings `'true'` and
-`'false'` will be cast to their boolean equivalents and numeric values will be
-cast to either int or float types.
+#### Named Parameters
 
-### Parameters
-
-Annotations can be defined with named parameter values as follows:
+Multiple annotation values can be specified using named parameters:
 
 ```php
 <?php
