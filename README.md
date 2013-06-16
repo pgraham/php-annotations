@@ -48,7 +48,7 @@ $factory = new AnnotationFactory;
 $annos = $factory->get('stdclass');
 ```
 
-## Supported annotation syntax
+## Annotation syntax
 
 All annotations are case **insensitive**. The default value for all annotations
 is `true`.
@@ -101,8 +101,8 @@ Some values will be cast into their expected types; strings `'true'` and
 `'false'` will be cast to their boolean equivalents and numeric values will be
 cast to either int or float types.
 
-#### Arrays
-Annotation values can also be specified as arrays by providing a comma separated
+#### Lists
+List values can be specified by providing a comma separated
 list surrounded with brackets:
 
 ```php
@@ -115,9 +115,16 @@ list surrounded with brackets:
 $annotations['LikesToEat'] == array('cheese', 'kraft dinner', 'hot dogs');
 ```
 
-#### Named Parameters
+A parsed list value will be represented as a PHP array:
 
-Multiple annotation values can be specified using named parameters:
+```php
+<?php
+is_array($annotations['LikesToEat']) === true
+```
+
+#### Maps
+
+A map value can be specified using named parameters:
 
 ```php
 <?php
@@ -129,6 +136,10 @@ Multiple annotation values can be specified using named parameters:
 $annotations['likesToEat']['weekend'] == array('chips', 'dip');
 $annotations['likesToEat']['anytime'] == array('cheese', 'kraft dinner', 'hot dogs');
 ```
+
+* * *
+**NOTE:** It is not possible at this time to nest list values inside of another list or
+to nest maps inside of another map or a list.
 
 * * *
 **NOTE:** All annotation values can be surrounded by optional parentheses.
