@@ -96,7 +96,10 @@ class AnnotationParser {
 			}
 			return $val;
 
-		} else if (substr($val, 0, 1) == '"' && substr($val, -1) == '"') {
+		} else if (substr($val, 0, 1) == '{' && substr($val, -1) == '}') {
+	            	// If is json object that start with { } decode them
+	            	return json_decode($val);
+	        } else if (substr($val, 0, 1) == '"' && substr($val, -1) == '"') {
 			// Quoted value, remove the quotes then recursively parse and return
 			$val = substr($val, 1, -1);
 			return self::_parseValue($val);
