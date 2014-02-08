@@ -142,7 +142,7 @@ $annotations['likesToEat']['anytime'] == array('cheese', 'kraft dinner', 'hot do
 to nest maps inside of another map or a list to use only json object start { and end with }.
 
 ```php
-@MenuData {"root":{"child":{"arraychild":[0,1,2,3]}}, "arraysroot" : [1,2,3]}
+@MenuData {"root":{"child":{"arraychild":[0,1,2,3]}},"arraysroot":[1,2,3]}
 ```
 
 * * *
