@@ -176,6 +176,7 @@ class Annotations implements ArrayAccess {
 	 * @param mixed $offset
 	 * @return boolean
 	 */
+    #[\ReturnTypeWillChange]
 	public function offsetExists($offset) {
 		return isset($this->_annotations[strtolower($offset)]);
 	}
@@ -186,6 +187,7 @@ class Annotations implements ArrayAccess {
 	 * @param mixed $offset
 	 * @return mixed
 	 */
+    #[\ReturnTypeWillChange]
 	public function offsetGet($offset) {
 		return $this->_annotations[strtolower($offset)];
 	}
@@ -196,6 +198,7 @@ class Annotations implements ArrayAccess {
 	 * @param mixed $offset
 	 * @param mixed $value
 	 */
+    #[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value) {
 		// TODO Should this be allowed?  Does allowing this cause an expectation
 		// that were the same doc commenct parsed again the value would still be
@@ -212,6 +215,7 @@ class Annotations implements ArrayAccess {
 	 *
 	 * @param mixed $offset
 	 */
+    #[\ReturnTypeWillChange]
 	public function offsetUnset($offset) {
 		// TODO Should this be allowed?  Does allowing this cause an expectation
 		// that were the same doc commenct parsed again the value would still be
