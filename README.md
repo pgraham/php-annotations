@@ -10,7 +10,7 @@ Install via [Composer](http://getcomposer.org)
 
     {
         "require": {
-            "zeptech/annotations": "1.1.0"
+            "zeptech/annotations": "1.1.1"
         }
     }
 
