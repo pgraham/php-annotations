@@ -6,7 +6,7 @@
     "annotations"
   ],
   "homepage": "https://github.com/pgraham/php-annotations",
-  "license": "BSD",
+  "license": "BSD-3-Clause",
   "authors": [
     {
       "name": "Philip Graham",
