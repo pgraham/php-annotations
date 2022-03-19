@@ -1,19 +1,19 @@
 <?php
 /**
  * =============================================================================
- * Copyright (c) 2010, Philip Graham
+ * Copyright (c) 2022, Philip Graham
  * All rights reserved.
  *
- * This file is part of Reed and is licensed by the Copyright holder under the
- * 3-clause BSD License.  The full text of the license can be found in the
- * LICENSE.txt file included in the root directory of this distribution or at
- * the link below.
+ * This file is part of php-annotations and is licensed by the Copyright holder
+ * under the 3-clause BSD License.  The full text of the license can be found in
+ * the LICENSE.txt file included in the root directory of this distribution or
+ * at the link below.
  * =============================================================================
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-use \zpt\anno\Annotations;
-use \PHPUnit_Framework_TestCase as TestCase;
+use zpt\anno\Annotations;
+use PHPUnit\Framework\TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';
 
@@ -22,7 +22,7 @@ require_once __DIR__ . '/test-common.php';
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class ReflectionHelperTest extends TestCase {
+class AnnotationParsingTest extends TestCase {
 
   /**
    * Tests that a single line doc comment containing a single annotation is
@@ -35,27 +35,78 @@ class ReflectionHelperTest extends TestCase {
     $this->assertTrue(isset($annotations['inline']));
   }
 
-  /**
-   * Tests that a single line doc comment containing a single, parameterized
-   * annotation is parsed properly.
-   */
-  public function testParameterizedInlineAnnotation() {
-    $comment = "/** @Inline(param = value) */";
+  public function testInlineAnnotationValue() {
+    $comment = "/** @Inline inline value */";
     $annotations = new Annotations($comment);
 
-    $this->assertTrue(isset($annotations['inline']));
-    $this->assertTrue(isset($annotations['inline']['param']));
-    $this->assertEquals('value', $annotations['inline']['param']);
+    $this->assertEquals('inline value', $annotations['inline']);
   }
 
-  /**
-   * Tests that a doc comment that contains a single annotation with no
-   * parameters is parsed correctly.
-   */
-  public function testOneAnnotationNoParams() {
+  public function testInlineBracketedAnnotationValue() {
+    $comment = "/** @Inline (inline value) */";
+    $annotations = new Annotations($comment);
+
+    $this->assertEquals('inline value', $annotations['inline']);
+  }
+
+  public function testInlineCompactAnnotationValue() {
+    $comment = "/**@Inline inline value*/";
+    $annotations = new Annotations($comment);
+
+    $this->assertEquals('inline value', $annotations['inline']);
+  }
+
+  public function testInlineCompactBracketedAnnotationValue() {
+    $comment = "/**@Inline(inline value)*/";
+    $annotations = new Annotations($comment);
+
+    $this->assertEquals('inline value', $annotations['inline']);
+  }
+
+  public function testInlineParameterizedAnnotationValue() {
+    $comment = "/** @Inline param = value */";
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['inline']), $msg);
+    $this->assertTrue(isset($annotations['inline']['param']), $msg);
+    $this->assertEquals('value', $annotations['inline']['param'], $msg);
+  }
+
+  public function testCompactInlineParameterizedAnnotationValue() {
+    $comment = "/**@Inline param = value*/";
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['inline']), $msg);
+    $this->assertTrue(isset($annotations['inline']['param']), $msg);
+    $this->assertEquals('value', $annotations['inline']['param'], $msg);
+  }
+
+  public function testBracketedInlineParameterizedAnnotationValue() {
+    $comment = "/** @Inline(param = value) */";
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['inline']), $msg);
+    $this->assertTrue(isset($annotations['inline']['param']), $msg);
+    $this->assertEquals('value', $annotations['inline']['param'], $msg);
+  }
+
+  public function testCompactBracketedInlineParameterizedAnnotationValue() {
+    $comment = "/**@Inline(param=value)*/";
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['inline']), $msg);
+    $this->assertTrue(isset($annotations['inline']['param']), $msg);
+    $this->assertEquals('value', $annotations['inline']['param'], $msg);
+  }
+
+  public function testSingleUnvaluedAnnotation() {
     $comment = <<<'EOT'
 /**
- * This is a comment that contains a single annotation with no parameters.
+ * This is a comment that contains a single annotation without a value.
  *
  * @Entity
  */
@@ -65,15 +116,11 @@ EOT;
     $msg = print_r($annotations, true);
 
     $this->assertTrue(isset($annotations['entity']), $msg);
-    $this->assertInternalType('boolean', $annotations['entity'], $msg);
+    $this->assertIsBool($annotations['entity'], $msg);
     $this->assertEquals(true, $annotations['entity'], $msg);
   }
 
-  /**
-   * Tests that a doc comment that contains a single annotation with only
-   * a single value defined without a name works correctly.
-   */
-  public function testSingleValueAnnotation() {
+  public function testSingleValuedAnnotation() {
     $comment = <<<'EOT'
 /**
  * This is a comment that contains a single annotation with a single value
@@ -86,14 +133,10 @@ EOT;
     $msg = print_r($annotations, true);
 
     $this->assertTrue(isset($annotations['entity']), $msg);
-    $this->assertInternalType('string', $annotations['entity'], $msg);
+    $this->assertIsString($annotations['entity'], $msg);
     $this->assertEquals('is awesome!', $annotations['entity'], $msg);
   }
 
-  /**
-   * Tests that a doc comment containing an annotation with a single value
-   * defined as an array works as expected.
-   */
   public function testSingleValueAsArray() {
     $comment = <<<'EOT'
 /**
@@ -107,18 +150,14 @@ EOT;
     $msg = print_r($annotations, true);
 
     $this->assertTrue(isset($annotations['LikesToEat']), $msg);
-    $this->assertInternalType('array', $annotations['LikesToEat'], $msg);
+    $this->assertIsArray($annotations['LikesToEat'], $msg);
     $this->assertEquals(
       array('cheese', 'kraft dinner', 'hot dogs'),
       $annotations['LikesToEat'],
       $msg);
   }
 
-  /**
-   * Tests that a doc comment that contains a single annotation with one
-   * parameter is parsed correctly.
-   */
-  public function testOneAnnotationOneParam() {
+  public function testSingleAnnotationOneParam() {
     $comment = <<<'EOT'
 /**
  * This is a comment that contains a single annotation with one parameter.
@@ -133,16 +172,12 @@ EOT;
     $this->assertTrue(isset($annotations['entity']), $msg);
 
     $annoVal = $annotations['entity'];
-    $this->assertInternalType('array', $annoVal, $msg);
+    $this->assertIsArray($annoVal, $msg);
     $this->assertArrayHasKey('name', $annoVal, $msg);
     $this->assertEquals('table', $annoVal['name'], $msg);
   }
 
-  /**
-   * Tests that a doc comment that contains a single annotation with two
-   * parameters is parsed correctly.
-   */
-  public function testOneAnnotationTwoParams() {
+  public function testSingleAnnotationTwoParams() {
     $comment = <<<'EOT'
 /**
  * This is a comment that contains a single annotation with two parameters.
@@ -157,7 +192,7 @@ EOT;
     $this->assertTrue(isset($annotations['entity']), $msg);
 
     $annoVal = $annotations['entity'];
-    $this->assertInternalType('array', $annoVal, $msg);
+    $this->assertIsArray($annoVal, $msg);
     $this->assertArrayHasKey('name', $annoVal, $msg);
     $this->assertEquals('table', $annoVal['name'], $msg);
     $this->assertArrayHasKey('desc', $annoVal, $msg);
@@ -165,11 +200,7 @@ EOT;
       $msg);
   }
 
-  /**
-   * Tests that a doc comment that contains a single annotation with multiple
-   * parameters is parsed correctly.
-   */
-  public function testOneAnnotationMultipleParams() {
+  public function testSingleAnnotationMultipleParams() {
     $comment = <<<'EOT'
 /**
  * This is a comment that contains a single annotations with multiple parameters
@@ -184,7 +215,7 @@ EOT;
     $this->assertTrue(isset($annotations['entity']), $msg);
 
     $annoVal = $annotations['entity'];
-    $this->assertInternalType('array', $annoVal, $msg);
+    $this->assertIsArray($annoVal, $msg);
     $this->assertArrayHasKey('name', $annoVal, $msg);
     $this->assertEquals('table', $annoVal['name'], $msg);
     $this->assertArrayHasKey('desc', $annoVal, $msg);
@@ -194,11 +225,32 @@ EOT;
     $this->assertEquals('database', $annoVal['parent'], $msg);
   }
 
-  /**
-   * Tests that a doc comment that contains a multiple annotations with no
-   * parameters is parsed correctly.
-   */
-  public function testMultipleAnnotationsNoParams() {
+  public function testSingleAnnotationMultipleParamsUnbracketed() {
+    $comment = <<<'EOT'
+/**
+ * This is a comment that contains a single annotations with multiple parameters
+ *
+ * @Entity name = table, desc = Entity that represents a table, parent = database
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['entity']), $msg);
+
+    $annoVal = $annotations['entity'];
+    $this->assertIsArray($annoVal, $msg);
+    $this->assertArrayHasKey('name', $annoVal, $msg);
+    $this->assertEquals('table', $annoVal['name'], $msg);
+    $this->assertArrayHasKey('desc', $annoVal, $msg);
+    $this->assertEquals('Entity that represents a table', $annoVal['desc'],
+      $msg);
+    $this->assertArrayHasKey('parent', $annoVal, $msg);
+    $this->assertEquals('database', $annoVal['parent'], $msg);
+  }
+
+  public function testMultipleUnvaluedAnnotations() {
     $comment = <<<'EOT'
 /**
  * This is a comment that contains multiple annotations with no parameters.
@@ -217,18 +269,14 @@ EOT;
     $this->assertTrue(isset($annotations['kraftdinner']), $msg);
   }
 
-  /**
-   * Tests that a doc comment that contains multiple annotations with multiple
-   * parameters is parsed correctly.
-   */
   public function testMultipleAnnotationsMultipleParams() {
     $comment = <<<'EOT'
 /**
  * This is a comment that contains multiple annotations with multiple parameters
  *
  * @Hotdog(brand = Maple Leaf, bun = true, cooking_method = BBQ)
- * @Hamburger(brand = Home Made, bun = true, cooking_method = BBQ)
- * @KraftDinner(brand = Kraft, bun = false, cooking_method = stove)
+ * @Hamburger ( brand = Home Made, bun = true, cooking_method = BBQ )
+ * @KraftDinner brand = Kraft, bun = false, cooking_method = stove
  */
 EOT;
 
@@ -240,7 +288,7 @@ EOT;
     $this->assertTrue(isset($annotations['kraftdinner']), $msg);
 
     $annoVal = $annotations['hotdog'];
-    $this->assertInternalType('array', $annoVal, $msg);
+    $this->assertIsArray($annoVal, $msg);
     $this->assertArrayHasKey('brand', $annoVal, $msg);
     $this->assertArrayHasKey('bun', $annoVal, $msg);
     $this->assertArrayHasKey('cooking_method', $annoVal, $msg);
@@ -249,7 +297,7 @@ EOT;
     $this->assertEquals('BBQ', $annoVal['cooking_method'], $msg);
 
     $annoVal = $annotations['hamburger'];
-    $this->assertInternalType('array', $annoVal, $msg);
+    $this->assertIsArray($annoVal, $msg);
     $this->assertArrayHasKey('brand', $annoVal, $msg);
     $this->assertArrayHasKey('bun', $annoVal, $msg);
     $this->assertArrayHasKey('cooking_method', $annoVal, $msg);
@@ -258,7 +306,7 @@ EOT;
     $this->assertEquals('BBQ', $annoVal['cooking_method'], $msg);
 
     $annoVal = $annotations['kraftdinner'];
-    $this->assertInternalType('array', $annoVal, $msg);
+    $this->assertIsArray($annoVal, $msg);
     $this->assertArrayHasKey('brand', $annoVal, $msg);
     $this->assertArrayHasKey('bun', $annoVal, $msg);
     $this->assertArrayHasKey('cooking_method', $annoVal, $msg);
@@ -267,10 +315,6 @@ EOT;
     $this->assertEquals('stove', $annoVal['cooking_method'], $msg);
   }
 
-  /**
-   * Tests that annotation values that are enclosed in braces are parsed as an
-   * array of values.
-   */
   public function testArrayValue() {
     $comment = <<<'EOT'
 /**
@@ -290,19 +334,19 @@ EOT;
     $this->assertTrue(isset($annotations['hasthreearrays']), $msg);
 
     $hasArray = $annotations['hasarray'];
-    $this->assertInternalType('array', $hasArray, $msg);
+    $this->assertIsArray($hasArray, $msg);
     $this->assertArrayHasKey('array', $hasArray, $msg);
-    $this->assertInternalType('array', $hasArray['array'], $msg);
+    $this->assertIsArray($hasArray['array'], $msg);
     $this->assertContains('one', $hasArray['array'], $msg);
     $this->assertContains('two', $hasArray['array'], $msg);
     $this->assertContains('three', $hasArray['array'], $msg);
 
     $hasTwoArrays = $annotations['hastwoarrays'];
-    $this->assertInternalType('array', $hasTwoArrays, $msg);
+    $this->assertIsArray($hasTwoArrays, $msg);
     $this->assertArrayHasKey('array1', $hasTwoArrays, $msg);
     $this->assertArrayHasKey('array2', $hasTwoArrays, $msg);
-    $this->assertInternalType('array', $hasTwoArrays['array1'], $msg);
-    $this->assertInternalType('array', $hasTwoArrays['array2'], $msg);
+    $this->assertIsArray($hasTwoArrays['array1'], $msg);
+    $this->assertIsArray($hasTwoArrays['array2'], $msg);
     $this->assertContains('four', $hasTwoArrays['array1'], $msg);
     $this->assertContains('five', $hasTwoArrays['array1'], $msg);
     $this->assertContains('six', $hasTwoArrays['array1'], $msg);
@@ -311,13 +355,13 @@ EOT;
     $this->assertContains('nine', $hasTwoArrays['array2'], $msg);
 
     $hasThreeArrays = $annotations['hasthreearrays'];
-    $this->assertInternalType('array', $hasThreeArrays, $msg);
+    $this->assertIsArray($hasThreeArrays, $msg);
     $this->assertArrayHasKey('array1', $hasThreeArrays, $msg);
     $this->assertArrayHasKey('array2', $hasThreeArrays, $msg);
     $this->assertArrayHasKey('array3', $hasThreeArrays, $msg);
-    $this->assertInternalType('array', $hasThreeArrays['array1'], $msg);
-    $this->assertInternalType('array', $hasThreeArrays['array2'], $msg);
-    $this->assertInternalType('array', $hasThreeArrays['array3'], $msg);
+    $this->assertIsArray($hasThreeArrays['array1'], $msg);
+    $this->assertIsArray($hasThreeArrays['array2'], $msg);
+    $this->assertIsArray($hasThreeArrays['array3'], $msg);
     $this->assertContains('ten', $hasThreeArrays['array1'], $msg);
     $this->assertContains('eleven', $hasThreeArrays['array1'], $msg);
     $this->assertContains('twelve', $hasThreeArrays['array1'], $msg);
@@ -330,9 +374,6 @@ EOT;
 
   }
 
-  /**
-   * Test that values defined inside of quotes are parsed properly.
-   */
   public function testQuotedValue() {
     $expected = "This is a description, contained in quotes, that has commas";
     $comment = <<<EOT
@@ -349,16 +390,83 @@ EOT;
     $this->assertTrue(isset($annotations['description']), $msg);
 
     $description = $annotations['description'];
-    $this->assertInternalType('array', $description, $msg);
+    $this->assertIsArray($description, $msg);
     $this->assertArrayHasKey('value', $description, $msg);
 
     $this->assertEquals($expected, $description['value'], $msg);
   }
 
-  /**
-   * Test that multiple annotations result in an array of values.
-   */
-  public function testMultipleAnnotationsWithSameName() {
+  public function testBooleanAnnotationValueTrue() {
+    $comment = <<<EOT
+/**
+ * This is a comment which contains an explicit true value.
+ *
+ * @AreCool true
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+
+    $this->assertTrue($annotations['arecool']);
+  }
+
+  public function testBooleanAnnotationValueFalse() {
+    $comment = <<<EOT
+/**
+ * This is a comment which contains an explicit false value.
+ *
+ * @WillFail false
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+
+    $this->assertFalse($annotations['willfail']);
+  }
+
+  public function testIntegerAnnotationValue() {
+    $comment = <<<EOT
+/**
+ * This is a comment which contains an integer valued annotation.
+ *
+ * @Count 4
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+
+    $this->assertEquals(4, $annotations['count']);
+  }
+
+  public function testFloatAnnotationValue() {
+    $comment = <<<EOT
+/**
+ * This is a comment which contains an integer valued annotation.
+ *
+ * @Pi 3.14
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+
+    $this->assertEquals(3.14, $annotations['pi']);
+  }
+
+  public function testFloatDotZeroAnnotationValue() {
+    $comment = <<<EOT
+/**
+ * This is a comment which contains an integer valued annotation.
+ *
+ * @Pi 3.0
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+
+    $this->assertEquals(3.0, $annotations['pi']);
+  }
+
+  public function testMultipleValuedAnnotationsWithSameName() {
     $comment = <<<EOT
 /**
  * This is a comment that contains multiple annotations with the same
@@ -373,7 +481,7 @@ EOT;
     $msg = print_r($annotations, true);
 
     $this->assertTrue(isset($annotations['param']), $msg);
-    $this->assertInternalType('array', $annotations['param'], $msg);
+    $this->assertIsArray($annotations['param'], $msg);
 
     $params = $annotations['param'];
     $this->assertCount(2, $params, $msg);
@@ -393,17 +501,13 @@ EOT;
     $msg = print_r($annotations, true);
 
     $this->assertTrue(isset($annotations['param']), $msg);
-    $this->assertInternalType('array', $annotations['param'], $msg);
+    $this->assertIsArray($annotations['param'], $msg);
 
     $params = $annotations['param'];
     $this->assertCount(3, $params, $msg);
     $this->assertEquals(array('Value1', 'Value2', 'Value3'), $params, $msg);
   }
 
-  /**
-   * Test that whitespace between grammar elements has no effect on the parsed
-   * value.
-   */
   public function testGrammarWhiteSpace() {
     $comment = <<<EOT
 /**
@@ -426,4 +530,124 @@ EOT;
     $this->assertEquals('Value1', $annotations['entity']['value'], $msg);
   }
 
+  public function testMultilineAnnotation() {
+    $comment = <<<EOT
+/**
+ * This is a comment that contains a single annotation spread over multiple
+ * lines.
+ *
+ * @Worker(
+ *     name = "Slow Worker",
+ *     speed = 5
+ * )
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+
+    $this->assertTrue(isset($annotations['worker']), $msg);
+    $this->assertTrue(isset($annotations['worker']['name']), $msg);
+    $this->assertEquals('Slow Worker', $annotations['worker']['name'], $msg);
+    $this->assertTrue(isset($annotations['worker']['speed']), $msg);
+    $this->assertEquals(5, $annotations['worker']['speed'], $msg);
+  }
+
+  public function testJsonAnnotationValue() {
+    $comment = <<<EOT
+/**
+ * This is a comment which contains an annotation defined using JSON syntax.
+ *
+ * @MenuData {"root":{"child":{"arraychild":[0,1,2,3]}},"arraysroot":[1,2,3]}
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $this->assertIsObject($annotations['menudata']);
+    $this->assertIsObject($annotations['menudata']->root);
+    $this->assertIsObject($annotations['menudata']->root->child);
+    $this->assertIsArray($annotations['menudata']->root->child->arraychild);
+    $this->assertEquals(
+      $annotations['menudata']->root->child->arraychild,
+      array(0,1,2,3)
+    );
+
+    $this->assertIsArray($annotations['menudata']->arraysroot);
+    $this->assertEquals(
+      $annotations['menudata']->arraysroot,
+      array(1,2,3)
+    );
+  }
+
+  public function testBracketedJsonAnnotationValue() {
+    $comment = <<<EOT
+/**
+ * This is a comment which contains an annotation defined using JSON syntax.
+ *
+ * @MenuData({"root":{"child":{"arraychild":[0,1,2,3]}},"arraysroot":[1,2,3]})
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $this->assertIsObject($annotations['menudata']);
+    $this->assertIsObject($annotations['menudata']->root);
+    $this->assertIsObject($annotations['menudata']->root->child);
+    $this->assertIsArray($annotations['menudata']->root->child->arraychild);
+    $this->assertEquals(
+      $annotations['menudata']->root->child->arraychild,
+      array(0,1,2,3)
+    );
+
+    $this->assertIsArray($annotations['menudata']->arraysroot);
+    $this->assertEquals(
+      $annotations['menudata']->arraysroot,
+      array(1,2,3)
+    );
+  }
+
+  public function testNestedLists() {
+    $comment = <<<EOT
+/**
+ * This is a comment which contains an annotation value with a nested list.
+ *
+ * @Nesting [ [0], [1], [2] ]
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+    $this->assertEquals(
+      array( array(0), array(1), array(2) ),
+      $annotations['nesting']
+    );
+  }
+
+  public function testListsNestedInParameters() {
+    $comment = <<<EOT
+/**
+ * This is a comment which contains a parameterized annotation value with a
+ * nested list.
+ *
+ * @Nesting oneZero = [0], oneOne = [1], oneTwo = [2]
+ */
+EOT;
+
+    $annotations = new Annotations($comment);
+    $msg = print_r($annotations, true);
+    $this->assertEquals(
+      array(0),
+      $annotations['nesting']['oneZero'],
+      $msg
+    );
+    $this->assertEquals(
+      array(1),
+      $annotations['nesting']['oneOne'],
+      $msg
+    );
+    $this->assertEquals(
+      array(2),
+      $annotations['nesting']['oneTwo'],
+      $msg
+    );
+  }
 }
