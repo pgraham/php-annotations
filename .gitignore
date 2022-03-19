@@ -1,3 +1,5 @@
 phpdoc.ini
 commit.txt
 *.un~
+composer.phar
+vendor/

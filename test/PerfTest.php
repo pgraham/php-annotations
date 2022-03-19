@@ -14,7 +14,7 @@
  */
 namespace zpt\anno;
 
-use \PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';
 

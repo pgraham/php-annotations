@@ -14,7 +14,7 @@
  */
 namespace zpt\anno;
 
-use \PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase as TestCase;
 use \ReflectionClass;
 use \ReflectionFunction;
 
@@ -48,20 +48,16 @@ class InstantiationTest extends TestCase {
 		$this->assertInstanceOf('zpt\anno\Annotations', $annos);
 	}
 
-	/**
-	 * @expectedException zpt\anno\ReflectorNotCommentedException
-	 */
 	public function testInstantiateWithUncommentedReflector() {
+		$this->expectException(ReflectorNotCommentedException::class);
 		eval('function testFunction($arg1) {}');
 		$fnRef = new ReflectionFunction('testFunction');
 		$paramsRef = $fnRef->getParameters();
 		$annos = new Annotations($paramsRef[0]);
 	}
 
-	/**
-	 * @expectedException InvalidArgumentException
-	 */
 	public function testInstantiateWithObject() {
+		$this->expectException(\InvalidArgumentException::class);
 		$annos = new Annotations((object) array());
 	}
 
